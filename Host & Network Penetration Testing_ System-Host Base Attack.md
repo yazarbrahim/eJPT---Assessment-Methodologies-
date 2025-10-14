@@ -1,7 +1,7 @@
 
 ![Screenshot 2025-06-24 121524.png](resources/Screenshot%202025-06-24%20121524.png)
 
-Before checking the first hint, let’s try to understand the target by running an nmap scan. This is to understand what services are running on the target system.
+Before checking the first flag, let’s try to understand the target by running an nmap scan. This is to understand what services are running on the target system.
 
 nmap -Pn -sV -sC -p- 10.3.26.83
 
@@ -16,9 +16,9 @@ When you run the above command, the output will be given as follows.
 
 As you can see, there are various services running on the target host. Now let’s find **flag 1**.
 
-**HINT 1**: “User ‘bob’ might not have chosen a strong password. Try common passwords. (target1.ine.local)”
+**flag 1**: “User ‘bob’ might not have chosen a strong password. Try common passwords. (target1.ine.local)”
 
-So, when we read HINT 1, we get the idea that we need to brute force the user “bob” to find the credentials, but what is the service?. Let’s try to access the website running on port 80, as we can see the HTTP service is running on port 80 according to the **nmap results**.
+So, when we read flag 1, we get the idea that we need to brute force the user “bob” to find the credentials, but what is the service?. Let’s try to access the website running on port 80, as we can see the HTTP service is running on port 80 according to the **nmap results**.
 
 ![f84947b3666c04c94047e2b0d68ea897.png](resources/f84947b3666c04c94047e2b0d68ea897.png)
 
@@ -32,7 +32,7 @@ Let’s move to the “WebDAV” directory.
 http://target1.ine.local/webdav
 ```
 
-When you try to access the above directory, you will be asked to provide login credentials. So, this could be the service that **HINT 1** was talking about. Let’s try to brute force the credentials with the given wordlists. For this purpose, I’m going to use Hydra.
+When you try to access the above directory, you will be asked to provide login credentials. So, this could be the service that **flag 1** was talking about. Let’s try to brute force the credentials with the given wordlists. For this purpose, I’m going to use Hydra.
 
 hydra -l bob -P /usr/share/metasploit-framework/data/wordlists/unix_passwords.txt 10.3.26.83 http-get
 
@@ -56,11 +56,9 @@ Check other directories.
 
 ![80a31af8e87e2d2547913dcd7848e2df.png](resources/80a31af8e87e2d2547913dcd7848e2df.png)
 
-**Let’s move to find flag 2. Let’s check the hint.**
+**Let’s move to find flag 2. Let’s check the flag.**
 
-**HINT 2: “Valuable files are often on the C: drive. Explore it thoroughly. (target1.ine.local)”**
-
-So, the hint is all about accessing the target. Since we found what is the vulnerable service on the IIS server, let’s do some hacking.
+**flag 2: “Valuable files are often on the C: drive. Explore it thoroughly. (target1.ine.local)”**
 
 ## 2\. Access the system
 
@@ -72,8 +70,6 @@ To exploit the vulnerability, we need to use 2 tools,
 Let’s check which files are accepted by the server using davtest.
 
 davtest -auth bob:password_123321 -url http://10.3.26.83/webdav
-
-You will see what files are accepted as follows.
 
 ![c194c2402d740348fa938bf3e374dd7a.png](resources/c194c2402d740348fa938bf3e374dd7a.png)
 
@@ -161,9 +157,9 @@ davtest -url http://10.3.27.91/webdav/ -auth bob:password_123321
         - ^^type C:\\flag2.txt^^
     
 
-**HINT 3**: “SMB shares might contain hidden files. Check the available shares. (target2.ine.local)”
+**flag 3**: “SMB shares might contain hidden files. Check the available shares. (target2.ine.local)”
 
-According to HINT 3, let’s check the shares first and then check the hidden files.
+According to flag 3, let’s check the shares first and then check the hidden files.
 
 ## 3\. Enumerate shares in SMB
 
@@ -203,13 +199,11 @@ Provide the password and list the content. You can find the **flag 3** among the
 
 ![14b5907289c6d324dee7f34854a6acb1.png](resources/14b5907289c6d324dee7f34854a6acb1.png)
 
-&nbsp;
 
-Don’t close the SMB connection because **flag 4** is also located in the same share but different directory. Let’s move to find **flag 4**.
+Don’t close the SMB connection because **flag 4** is also located in the same share but different directory.
+flag 4: “The Desktop directory might have what you’re looking for. Enumerate its contents. (target2.ine.local)”
 
-HINT 4: “The Desktop directory might have what you’re looking for. Enumerate its contents. (target2.ine.local)”
-
-The hint says that **flag 4** is located in a desktop directory.
+The flag says that **flag 4** is located in a desktop directory.
 
 ![b9aad8a5589afcbd9a4fdbe66ac292e7.png](resources/b9aad8a5589afcbd9a4fdbe66ac292e7.png)
 
