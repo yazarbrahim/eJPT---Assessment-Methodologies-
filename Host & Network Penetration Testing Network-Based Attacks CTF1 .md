@@ -19,8 +19,6 @@ The best tools for this lab are:
 
 Wireshark is a free and widely used network analysis tool. It allows you to capture and inspect data packets in real-time. With Wireshark, we can troubleshoot network issues, analyze traffic, and even find security vulnerabilities.
 
-Press enter or click to view image in full size
-
 ![9b6bf5c6bbd3d375170593bbd223a07a.png](resources/9b6bf5c6bbd3d375170593bbd223a07a.png)
 
 **Flag 1: What is the URL accessed by the infected user that returned a 200 OK response code?**
@@ -109,7 +107,7 @@ Expand the **Hypertext Transfer Protocol** section and copy the `User-Agent` fro
 
 Only the name of PowerShell: WindowsPowerShell
 
-**Q.6: Which wallet extension ID is associated with the Coinbase wallet?**
+**Flag 6: Which wallet extension ID is associated with the Coinbase wallet?**
 
 Open to search. In the **String** parameter, type `Coinbase` and search using **Packet Bytes** on the left side
 
