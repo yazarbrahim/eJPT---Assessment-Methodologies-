@@ -14,8 +14,7 @@ When you run the above command, the output will be given as follows.
 
 ![d2bcdf4704eb700963c6259fd64fcc11.png](resources/d2bcdf4704eb700963c6259fd64fcc11.png)
 
-As you can see, there are various services running on the target host. Now let’s find **flag 1**.
-
+As you can see, there are various services running on the target host
 **flag 1**: “User ‘bob’ might not have chosen a strong password. Try common passwords. (target1.ine.local)”
 
 So, when we read flag 1, we get the idea that we need to brute force the user “bob” to find the credentials, but what is the service?. Let’s try to access the website running on port 80, as we can see the HTTP service is running on port 80 according to the **nmap results**.
