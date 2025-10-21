@@ -144,8 +144,6 @@ After that, type the ls command to list the contents.
 
 ![c3892c04b6a33b118c9aede40628babf.png](resources/c3892c04b6a33b118c9aede40628babf.png)
 
-<img alt="" class="bi jz ng c jop-noMdConv" width="700" height="375" loading="lazy" role="presentation" src="resources/1_r7Nbn6qLY_QUds7XxnL7KQ.png" style="box-sizing: inherit; vertical-align: middle; background-color: rgb(255, 255, 255); width: 680px; max-width: 100%; height: auto;">
-
 And here, we have found our third flag. We can read it using the cat command.
 
 cat flag.txt
